@@ -1,0 +1,8 @@
+* text=auto
+
+*.cs text
+*.shader text
+*.meta text
+*.json text
+*.txt text
+*.inputactions text
