@@ -6,7 +6,7 @@ using System.Linq;
 public class TimeLoopManager : MonoBehaviour
 {
     public static TimeLoopManager Instance;
-    public const float SHIFT_CHANGE_TIME = 6f;
+    public const float SHIFT_CHANGE_TIME = 76f;
     private float elapsedTime;
 
     [Header("Loop Settings")]
