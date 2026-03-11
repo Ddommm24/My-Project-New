@@ -26,6 +26,7 @@ public class DialogueTrigger : MonoBehaviour, ILoopResettable
         }
     }
 
+    // Handles what text is displayed when player enters which area
     void OnTriggerEnter(Collider other)
     {
         if (!other.CompareTag("Player"))

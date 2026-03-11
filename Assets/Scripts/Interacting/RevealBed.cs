@@ -13,6 +13,7 @@ public class RevealBed : MonoBehaviour, IInteractable, ILoopResettable
 
     public int Priority => 10;
 
+    // Moves covers same way as opendoor works
     void Start()
     {
         closedPos = transform.localPosition;

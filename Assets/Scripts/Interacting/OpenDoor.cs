@@ -18,6 +18,7 @@ public class OpenDoor : MonoBehaviour, IInteractable, ILoopResettable
         openPos = closedPos + openOffset;
     }
 
+    // Moves door
     void Update()
     {
         Vector3 target = isOpen ? openPos : closedPos;

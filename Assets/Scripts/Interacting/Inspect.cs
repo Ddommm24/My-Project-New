@@ -44,6 +44,7 @@ public class Inspect : MonoBehaviour, IInteractable
         
     }
 
+    // How it deals with normal inspects and the plot-relevant ones
     public void Interact()
     {
         UIState.IsInspecting = true;
@@ -76,6 +77,7 @@ public class Inspect : MonoBehaviour, IInteractable
 
     void Update()
     {
+        // How to close inspecting
         if (!UIState.IsInspecting) return;
 
         if (Input.GetKeyDown(KeyCode.Escape))

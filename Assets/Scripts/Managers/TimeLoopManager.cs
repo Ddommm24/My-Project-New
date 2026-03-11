@@ -6,7 +6,7 @@ using System.Linq;
 public class TimeLoopManager : MonoBehaviour
 {
     public static TimeLoopManager Instance;
-    public const float SHIFT_CHANGE_TIME = 76f;
+    public const float SHIFT_CHANGE_TIME = 6f;
     private float elapsedTime;
 
     [Header("Loop Settings")]
@@ -51,6 +51,7 @@ public class TimeLoopManager : MonoBehaviour
 
     void Update()
     {
+        // Counts down the time in the loop and can be displayed with T
         if (!loopStopped)
         {
             float dt = Time.deltaTime;
@@ -113,6 +114,7 @@ public class TimeLoopManager : MonoBehaviour
 
         if (cc) cc.enabled = true;
 
+        // Calls all resettable objects to reset their state
         MonoBehaviour[] allMono = FindObjectsOfType<MonoBehaviour>(true);
         foreach (var obj in allMono)
         {
@@ -126,6 +128,7 @@ public class TimeLoopManager : MonoBehaviour
 
     public void ResetLoopFromDeath()
     {
+        // Useful for debugging
         Debug.Log("PLAYER DIED — RESETTING LOOP");
         ResetLoop();
     }
@@ -150,6 +153,7 @@ public class TimeLoopManager : MonoBehaviour
 
     public void SetSpawnPointToCurrentPhase()
     {
+        // Spawn player in correct place depending on their game phase
         if (GamePhaseManager.Instance.CurrentPhase == GamePhase.Tutorial)
         {
             playerStartPos = tutorialSpawn.position;

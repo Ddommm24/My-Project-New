@@ -34,6 +34,7 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
 
     void Awake()
     {
+        // Not all enemies patrol
         if (!patrolEnabled)
             return;
 
@@ -46,6 +47,7 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
 
         agent = GetComponent<NavMeshAgent>();
 
+        // Get all of the waypoints and put into an array
         patrolPoints = new Transform[waypointParent.childCount];
         for (int i = 0; i < waypointParent.childCount; i++)
             patrolPoints[i] = waypointParent.GetChild(i);
@@ -70,6 +72,7 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
         }
     }
 
+    // Handling the patrol
     void GoToNextPoint()
     {
         if (!patrolEnabled) return;
@@ -86,13 +89,12 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
         isPatrolling = false;
     }
 
+    // After stopped searching
     public void ResumePatrol()
     {
         if (!patrolEnabled) return;
         if (agent == null || patrolPoints == null || patrolPoints.Length == 0)
             return;
-
-        if (isPatrolling) return;
 
         isPatrolling = true;
         GoToNextPoint();
@@ -121,6 +123,7 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
         ResumePatrol();
     }
 
+    // Where they are in the route
     public int GetCurrentIndex()
     {
         return currentIndex;
@@ -143,8 +146,8 @@ public class EnemyPatrol : MonoBehaviour, ILoopResettable
         {
             agent.ResetPath();
 
-            // Move to next waypoint
             int nextIndex = (currentIndex + 1) % patrolPoints.Length;
+            Debug.Log($"{name} resetting patrol from {currentIndex} to {nextIndex}");
             agent.SetDestination(patrolPoints[nextIndex].position);
         }
     }

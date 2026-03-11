@@ -29,6 +29,7 @@ public class PlayerInteractor : MonoBehaviour
         }
     }
 
+    // Uses raycasting and layers to see if objects are interactable
     void CheckInteractable()
     {
         

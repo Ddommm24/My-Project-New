@@ -4,7 +4,7 @@ using System.Collections.Generic;
 public class EnemyPatrolStartManager : MonoBehaviour, ILoopResettable
 {
     public EnemyPatrol[] enemies;
-    public int minWaypointSpacing = 3;
+    public int minWaypointSpacing = 6;
 
     List<int> usedIndices = new();
 
@@ -13,32 +13,60 @@ public class EnemyPatrolStartManager : MonoBehaviour, ILoopResettable
         AssignRandomStartPoints();
     }
 
+    // Randomly assigns them a starting waypoint, while trying to space the enemies out
     public void AssignRandomStartPoints()
     {
-        usedIndices.Clear();
-
-        if (enemies.Length == 0) return;
-
-        int waypointCount = enemies[0].GetWaypointCount();
-        if (waypointCount == 0) return;
+        Dictionary<Transform, List<int>> availableByRoute = new();
 
         foreach (var enemy in enemies)
         {
-            if (!enemy.patrolEnabled)
+            if (enemy == null || !enemy.patrolEnabled || enemy.waypointParent == null)
                 continue;
 
-            if (enemy.waypointParent == null)
+            Transform route = enemy.waypointParent;
+
+            if (!availableByRoute.ContainsKey(route))
+            {
+                int count = enemy.GetWaypointCount();
+
+                List<int> list = new List<int>();
+                for (int i = 0; i < count; i++)
+                    list.Add(i);
+
+                availableByRoute[route] = list;
+            }
+
+            List<int> available = availableByRoute[route];
+
+            if (available.Count == 0)
                 continue;
 
-            int index = GetSpacedRandomIndex(waypointCount);
-            usedIndices.Add(index);
+            int pickIndex = Random.Range(0, available.Count);
+            int waypointIndex = available[pickIndex];
 
-            enemy.SetPatrolIndex(index);
-            WarpEnemyToWaypoint(enemy, index);
-            enemy.ResetState();
+            enemy.SetPatrolIndex(waypointIndex);
+            WarpEnemyToWaypoint(enemy, waypointIndex);
+
+            RemoveNearbyIndices(available, waypointIndex, enemy.GetWaypointCount());
         }
     }
 
+    void RemoveNearbyIndices(List<int> list, int chosen, int max)
+    {
+        for (int i = list.Count - 1; i >= 0; i--)
+        {
+            int idx = list[i];
+
+            int direct = Mathf.Abs(idx - chosen);
+            int loop = max - direct;
+            int dist = Mathf.Min(direct, loop);
+
+            if (dist < minWaypointSpacing)
+                list.RemoveAt(i);
+        }
+    }
+
+    // Move them to their randomly generated start point
     void WarpEnemyToWaypoint(EnemyPatrol enemy, int index)
     {
         UnityEngine.AI.NavMeshAgent agent = enemy.GetComponent<UnityEngine.AI.NavMeshAgent>();
@@ -62,7 +90,7 @@ public class EnemyPatrolStartManager : MonoBehaviour, ILoopResettable
         }
     }
 
-
+    // Trying to space them out, so there are not 2 enemies on top of each other
     int GetSpacedRandomIndex(int max)
     {
         const int MAX_ATTEMPTS = 100;
@@ -93,6 +121,7 @@ public class EnemyPatrolStartManager : MonoBehaviour, ILoopResettable
         return Random.Range(0, max);
     }
 
+    // New random start points assigned every loop
     public void ResetState()
     {
         AssignRandomStartPoints();

@@ -30,6 +30,7 @@ public class EndingCutsceneManager : MonoBehaviour
 
     public void StartCutscene()
     {
+        // Only start cutscene once
         if (playing)
             return;
 
@@ -43,11 +44,13 @@ public class EndingCutsceneManager : MonoBehaviour
         foreach (EnemyAI enemy in enemies)
             enemy.DisableAI();
 
+        // Show ending text
         textUI.gameObject.SetActive(true);
 
         StartStep();
     }
 
+    // Ending Cutscene is made up of different steps of dialogue which are iterated through
     void Update()
     {
         if (!playing)
@@ -96,6 +99,7 @@ public class EndingCutsceneManager : MonoBehaviour
     }
 }
 
+// A step contains text, duration and text colour which can be changed in the Unity editor
 [System.Serializable]
 public class EndingStep
 {

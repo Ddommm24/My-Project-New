@@ -9,6 +9,7 @@ public class FacilityEntrance : MonoBehaviour, ILoopResettable
         blockade.SetActive(false);
     }
 
+    // When entered once, block off
     public void OnPlayerEntered()
     {
         EntryRouteManager.Instance.MarkEntered();
@@ -26,6 +27,7 @@ public class FacilityEntrance : MonoBehaviour, ILoopResettable
         }
     }
 
+    // Make blockade disappear when broken
     public void HideForThisLoop()
     {
         blockade.SetActive(false);

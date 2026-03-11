@@ -15,6 +15,7 @@ public class OpenGate : MonoBehaviour, IInteractable, ILoopResettable
     Vector3 openPos;
     bool isOpen;
 
+    // Works the same way as opendoor
     void Start()
     {
         closedPos = gate.position;

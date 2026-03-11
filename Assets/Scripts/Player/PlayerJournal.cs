@@ -5,6 +5,7 @@ public class PlayerJournal : MonoBehaviour
 {
     public static PlayerJournal Instance;
 
+    // Text entered by player stored in list
     List<string> entries = new List<string>();
 
     void Awake()

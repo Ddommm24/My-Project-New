@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
 
-public class EnemyAttack : MonoBehaviour
+public class EnemyAttack : MonoBehaviour, ILoopResettable
 {
     public float attackRange = 1.5f;
     public float attackCooldown = 1f;
@@ -28,9 +28,11 @@ public class EnemyAttack : MonoBehaviour
 
     void Update()
     {
+        // When disabled do nothing
         if (disabled)
             return;
 
+        // This script only activates when enemy is chasing
         if (!enemyAI.IsChasing)
             return;
 
@@ -61,6 +63,7 @@ public class EnemyAttack : MonoBehaviour
         StartCoroutine(HitSlowdown());
     }
 
+    // After attacking, enemy is slowed to allow player to get away
     IEnumerator HitSlowdown()
     {
         float originalSpeed = agent.speed;
@@ -78,6 +81,13 @@ public class EnemyAttack : MonoBehaviour
         }
 
         agent.speed = originalSpeed;
+    }
+
+    public void ResetState()
+    {
+        disabled = false;
+        enabled = true;
+        lastAttackTime = 0f;
     }
 
 

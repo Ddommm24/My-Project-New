@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class JournalUI : MonoBehaviour
 {
@@ -7,13 +8,14 @@ public class JournalUI : MonoBehaviour
     public TMP_Text historyText;
     public TMP_InputField inputField;
     public PlayerMovement playerMovement;
+    public ScrollRect scrollRect;
 
     bool open = false;
 
+    // Works the same way as inventory
     void Start()
     {
         panel.SetActive(false);
-
     }
 
     void Update()
@@ -65,6 +67,7 @@ public class JournalUI : MonoBehaviour
 
     void SaveEntry()
     {
+        // Press enter to save entry which stores the text written so it can be displayed
         string text = inputField.text;
 
         if (string.IsNullOrWhiteSpace(text))
@@ -82,6 +85,7 @@ public class JournalUI : MonoBehaviour
 
     void Refresh()
     {
+        // Write previous entries to the journal when opened
         if (PlayerJournal.Instance == null)
             return;
 
@@ -94,5 +98,15 @@ public class JournalUI : MonoBehaviour
 
         if (historyText.text == "")
             historyText.text = "Journal Empty";
+
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            historyText.rectTransform.parent as RectTransform
+        );
+
+        if (scrollRect != null)
+        {
+            scrollRect.verticalNormalizedPosition = 0f;
+        }
     }
 }

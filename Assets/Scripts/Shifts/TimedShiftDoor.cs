@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class TimedShiftDoor : MonoBehaviour
+public class TimedShiftDoor : MonoBehaviour, ILoopResettable
 {
     public Transform door;
     public Vector3 openOffset = new Vector3(0, 10f, 0);
@@ -20,7 +20,7 @@ public class TimedShiftDoor : MonoBehaviour
 
     void Update()
     {
-
+        // On shift change door opens for 10 seconds
         Vector3 pos = door.position;
 
         float targetY = isOpen

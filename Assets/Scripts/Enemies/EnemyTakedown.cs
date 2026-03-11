@@ -7,6 +7,7 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
     enum TakedownState
     {
         CanRemoveBack,
+        WaitingToDisable,
         CanDisable,
         Disabled
     }
@@ -21,13 +22,14 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
             if (!backRemoved)
                 return TakedownState.CanRemoveBack;
 
+            if (Time.time < disableUnlockTime)
+                return TakedownState.WaitingToDisable;
+
             return TakedownState.CanDisable;
         }
     }
 
-    public int Priority =>
-        CurrentState == TakedownState.Disabled ? -1 : 100;
-
+    public int Priority => CurrentState == TakedownState.Disabled ? -1 : 100;
 
     [Header("Back Panel")]
     public GameObject backPanel;
@@ -42,6 +44,9 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
 
     bool backRemoved;
     bool disabled;
+    float disableUnlockTime;
+
+    public bool IsDisabled => disabled;
 
     Transform player;
     EnemyAI enemyAI;
@@ -49,54 +54,62 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
     void Start()
     {
         GameObject p = GameObject.FindGameObjectWithTag("Player");
-        if (p != null) player = p.transform;
+        if (p != null)
+            player = p.transform;
 
         enemyAI = GetComponentInParent<EnemyAI>();
         exposedBackPanel.SetActive(false);
 
         Inspect inspect = exposedBackPanel.GetComponent<Inspect>();
-        inspect.requiresUnlock = true;
-        inspect.unlocked = false;
-        inspect.enabled = false;
+        if (inspect != null)
+        {
+            inspect.requiresUnlock = true;
+            inspect.unlocked = false;
+            inspect.enabled = false;
+        }
 
         exposedCol = exposedBackPanel.GetComponent<Collider>();
-        exposedCol.enabled = false;
+        if (exposedCol != null)
+            exposedCol.enabled = false;
     }
 
     public bool CanInteract()
     {
-        if (CurrentState == TakedownState.Disabled) return false;
-        if (player == null) return false;
-        if (!PlayerInventory.Instance.HasScrewdriver) return false;
+        if (CurrentState == TakedownState.Disabled || CurrentState == TakedownState.WaitingToDisable)
+            return false;
+
+        if (player == null)
+            return false;
+
+        if (PlayerInventory.Instance == null || !PlayerInventory.Instance.HasScrewdriver)
+            return false;
 
         Collider col = backRemoved
             ? exposedCol
             : backPanel.GetComponent<Collider>();
 
-        if (col == null) return false;
+        if (col == null || !col.enabled)
+            return false;
 
-        float dist = Vector3.Distance(
-            player.position,
-            col.ClosestPoint(player.position)
-        );
-
-        if (dist > interactRange) return false;
+        float dist = Vector3.Distance(player.position, col.ClosestPoint(player.position));
+        if (dist > interactRange)
+            return false;
 
         Vector3 toPlayer = (player.position - enemyAI.transform.position).normalized;
         float dot = Vector3.Dot(enemyAI.transform.forward, toPlayer);
 
-        if (dot > -behindDotThreshold) return false;
+        if (dot > -behindDotThreshold)
+            return false;
 
         return true;
     }
-
-
 
     public string GetPromptText()
     {
         return CurrentState switch
         {
             TakedownState.CanRemoveBack => "Press E to Remove Back Panel",
+            TakedownState.WaitingToDisable => "Disable available in 1 second",
             TakedownState.CanDisable => "Press E to Disable Enemy",
             _ => ""
         };
@@ -116,17 +129,20 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
         }
     }
 
-
-
     void RemoveBack()
     {
         backRemoved = true;
+        disableUnlockTime = Time.time + 1f;
 
-        backPanel.GetComponent<Collider>().enabled = false;
+        Collider backCol = backPanel.GetComponent<Collider>();
+        if (backCol != null)
+            backCol.enabled = false;
+
         backPanel.SetActive(false);
-
         exposedBackPanel.SetActive(true);
-        exposedCol.enabled = true;
+
+        if (exposedCol != null)
+            exposedCol.enabled = true;
 
         enemyAI.ForceChase(player.position);
         PlayerMovement.Instance.Stun(1f);
@@ -135,8 +151,6 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
     void DisableEnemy()
     {
         disabled = true;
-
-        enabled = false;
 
         Collider myCol = GetComponent<Collider>();
         if (myCol != null)
@@ -153,27 +167,58 @@ public class EnemyTakedown : MonoBehaviour, IInteractable, ILoopResettable
         enemyAI.DisableAI();
 
         Inspect inspect = exposedBackPanel.GetComponent<Inspect>();
-        inspect.unlocked = true;
-        inspect.enabled = true;
+        if (inspect != null)
+        {
+            inspect.unlocked = true;
+            inspect.enabled = true;
+        }
     }
-
-
 
     public void ResetState()
     {
         backRemoved = false;
         disabled = false;
+        disableUnlockTime = 0f;
+        enabled = true;
 
-        backPanel.SetActive(true);
-        exposedBackPanel.SetActive(false);
-        exposedCol.enabled = false;
+        if (backPanel != null)
+        {
+            backPanel.SetActive(true);
+
+            Collider backCol = backPanel.GetComponent<Collider>();
+            if (backCol != null)
+                backCol.enabled = true;
+        }
+
+        if (exposedBackPanel != null)
+            exposedBackPanel.SetActive(false);
+
+        if (exposedCol != null)
+            exposedCol.enabled = false;
+
+        Collider myCol = GetComponent<Collider>();
+        if (myCol != null)
+            myCol.enabled = true;
 
         Inspect inspect = exposedBackPanel.GetComponent<Inspect>();
-        inspect.unlocked = false;
-        inspect.enabled = false;
+        if (inspect != null)
+        {
+            inspect.requiresUnlock = true;
+            inspect.unlocked = false;
+            inspect.enabled = false;
+        }
 
-        enabled = true;
+        EnemyAttack attack = GetComponentInParent<EnemyAttack>();
+        if (attack != null)
+        {
+            attack.disabled = false;
+            attack.enabled = true;
+        }
+
+        if (enemyAI != null)
+        {
+            enemyAI.enabled = true;
+            enemyAI.PauseChase(false);
+        }
     }
-
-
 }

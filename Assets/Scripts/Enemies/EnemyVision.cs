@@ -31,6 +31,7 @@ public class EnemyVision : MonoBehaviour
         Vector3 direction = (player.position - transform.position).normalized;
         float distance = Vector3.Distance(transform.position, player.position);
 
+        // Out of range
         if (distance > viewDistance) return;
 
         float angle = Vector3.Angle(transform.forward, direction);
@@ -40,6 +41,7 @@ public class EnemyVision : MonoBehaviour
             return;
 
         CanSeePlayer = true;
+        // Move towards where they last saw player
         if (CanSeePlayer)
         {
             LastSeenPosition = player.position;
@@ -47,6 +49,7 @@ public class EnemyVision : MonoBehaviour
 
     }
 
+    // For testing
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

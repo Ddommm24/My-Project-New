@@ -24,6 +24,7 @@ public class FacilityClock : MonoBehaviour, ILoopResettable
         
     }
 
+    // Calculations for converting loop time into real time to be displayed
     public string GetClockText()
     {
         float elapsed = TimeLoopManager.Instance.GetElapsedTime();

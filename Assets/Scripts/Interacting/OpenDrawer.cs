@@ -13,6 +13,7 @@ public class OpenDrawer : MonoBehaviour, IInteractable, ILoopResettable
 
     public int Priority => 10;
 
+    // Works the same way as opendoor
     void Start()
     {
         closedPos = transform.localPosition;

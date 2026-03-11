@@ -4,6 +4,7 @@ public class BigDoor : MonoBehaviour
 {
     bool isOpen;
 
+    // Final door with the 4 digit code
     public void TryOpen(int[] input)
     {
         if (isOpen) return;

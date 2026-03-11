@@ -19,9 +19,6 @@ public class ShiftDoorButton : MonoBehaviour, IInteractable
 
     public void Interact()
     {
-        
-
-        Debug.Log($"Button interacted, opening door on {door.gameObject.name}");
         door.OpenForDuration(manualOpenDuration);
     }
 }

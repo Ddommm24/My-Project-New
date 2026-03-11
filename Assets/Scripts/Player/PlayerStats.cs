@@ -103,6 +103,7 @@ public class PlayerStats : MonoBehaviour, ILoopResettable
 
     }
 
+    // Enemy attack takes 20 damage
     public void TakeDamage(float amount)
     {
         if (isDead) return;
@@ -120,6 +121,7 @@ public class PlayerStats : MonoBehaviour, ILoopResettable
         }
     }
 
+    // Dying resets the loop
     void Die()
     {
         if (isDead) return;

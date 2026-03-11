@@ -41,15 +41,18 @@ public class EndingChoice : MonoBehaviour
 
     void Update()
     {
+        // Walking means cutscene is ongoing and needs the player to be moved somewhere
         if (!walking)
             return;
 
+        // Move to next point in the cutscene
         player.position = Vector3.MoveTowards(
             player.position,
             walkTarget.position,
             walkSpeed * Time.deltaTime
         );
 
+        // Vaguely rotate to face a realistic direction
         Vector3 dir = (walkTarget.position - player.position).normalized;
 
         if (dir != Vector3.zero)
@@ -61,6 +64,7 @@ public class EndingChoice : MonoBehaviour
             );
         }
 
+        // When close to endpoint start the fading
         if (Vector3.Distance(player.position, walkTarget.position) < 3f)
         {
             StartCoroutine(FadeSequence());
@@ -77,6 +81,7 @@ public class EndingChoice : MonoBehaviour
         Time.timeScale = 0f;
     }
 
+    // Depending on which choice is shown
     public void ChooseEndingA()
     {
         StartEnding(endingPointA);
@@ -105,6 +110,7 @@ public class EndingChoice : MonoBehaviour
         walking = true;
     }
 
+    // Fade the screen to black at the end of the game
     IEnumerator FadeSequence()
     {
         Debug.Log("fading");

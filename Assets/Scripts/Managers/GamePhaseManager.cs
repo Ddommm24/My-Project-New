@@ -6,6 +6,7 @@ public enum GamePhase
     MainGame
 }
 
+// Handles moving from tutorial to main game
 public class GamePhaseManager : MonoBehaviour
 {
     public static GamePhaseManager Instance;

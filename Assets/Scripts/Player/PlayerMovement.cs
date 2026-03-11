@@ -134,6 +134,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    // Player gets stunned by enemy when interacting with them
     public void Stun(float duration)
     {
         StartCoroutine(StunRoutine(duration));

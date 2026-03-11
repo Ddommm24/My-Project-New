@@ -21,6 +21,7 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    // UIState makes sure 2 different UI elements can't be opened at once
     void Open()
     {
         open = true;
@@ -50,6 +51,7 @@ public class InventoryUI : MonoBehaviour
 
     void Refresh()
     {
+        // Manually shows the item in inventory if it has been picked up
         if (PlayerInventory.Instance == null)
             return;
 

@@ -6,6 +6,7 @@ public class PauseMenu : MonoBehaviour
 
     bool paused;
 
+    // Simple pause menu
     void Start()
     {
         panel.SetActive(false);

@@ -34,6 +34,7 @@ public class KeypadTerminal : MonoBehaviour
         }
     }
 
+    // See if looking
     void CheckForLook()
     {
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);

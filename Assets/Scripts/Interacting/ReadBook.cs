@@ -56,6 +56,7 @@ public class ReadBook : MonoBehaviour, IInteractable
         Cursor.visible = true;
     }
 
+    // Turning the page with arrow keys
     void Update()
     {
         if (ActiveBook != this) return;
@@ -85,6 +86,7 @@ public class ReadBook : MonoBehaviour, IInteractable
         }
     }
 
+    // Makes sure correct thing is displayed depending on the page
     void UpdatePage()
     {
         pageImage.sprite = pages[page];

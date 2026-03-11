@@ -63,7 +63,7 @@ public class TutorialManager : MonoBehaviour
 
         var step = steps[currentIndex];
 
-        // Trigger-gated step: wait until trigger entered
+        // Steps update after triggers
         if (!string.IsNullOrEmpty(step.startTriggerId) &&
             !enteredTriggers.Contains(step.startTriggerId))
         {
@@ -111,7 +111,6 @@ public class TutorialStepData
 
     public KeyCode requiredKey;
 
-    // For trigger-gated steps
     public string startTriggerId;
 }
 

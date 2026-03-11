@@ -20,6 +20,7 @@ public class PickupItem : MonoBehaviour, IInteractable, ILoopResettable
         UpdatePermanentVisualState();
     }
 
+    // Handles chain appearing specifically
     void UpdatePermanentVisualState()
     {
         if (disableAfterBlockadeBroken &&

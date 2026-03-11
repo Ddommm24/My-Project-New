@@ -15,6 +15,7 @@ public class PlayerInventory : MonoBehaviour, ILoopResettable
             Destroy(gameObject);
     }
 
+    // Checks to see what items player has
     public bool HasScrewdriver => items.Contains("Screwdriver");
     public bool HasAxe => items.Contains("Axe");
     public bool HasGateKey => items.Contains("GateKey");

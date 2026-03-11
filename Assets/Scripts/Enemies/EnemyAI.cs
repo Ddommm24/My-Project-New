@@ -11,6 +11,8 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
     Vector3 homePosition;
     bool hasHome;
 
+    int patrolResumeIndex = -1;
+
     bool hasDetectedPlayer;
 
     [Header("Speeds")]
@@ -50,8 +52,16 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
     public void ForceChase(Vector3 playerPos)
     {
         currentState = EnemyState.Chase;
-        patrol.StopPatrol();
+
+        if (patrol != null)
+        {
+            patrolResumeIndex = patrol.GetCurrentIndex();
+            patrol.StopPatrol();
+        }
+
+        agent.isStopped = false;
         agent.speed = chaseSpeed;
+        lastSeenPosition = playerPos;
         agent.SetDestination(playerPos);
     }
 
@@ -72,7 +82,8 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         startPosition = transform.position;
         startRotation = transform.rotation;
 
-        patrol.ResumePatrol();
+        if (patrol != null)
+            patrol.ResumePatrol();
         agent.isStopped = false;
     }
 
@@ -81,6 +92,7 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         if (isPaused)
         return;
 
+        // Handling the states of enemy behaviour
         switch (currentState)
         {
             case EnemyState.Patrol:
@@ -101,6 +113,7 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         }
     }
 
+    // For shift enemies who only move between two positions
     public void SetHome(Vector3 pos)
     {
         homePosition = pos;
@@ -167,11 +180,12 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
 
         searchTimer -= Time.deltaTime;
 
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance + 0.2f)
         {
             Vector3 randomPoint = lastSeenPosition + Random.insideUnitSphere * searchRadius;
-            NavMeshHit hit;
+            randomPoint.y = transform.position.y;
 
+            NavMeshHit hit;
             if (NavMesh.SamplePosition(randomPoint, out hit, searchRadius, NavMesh.AllAreas))
             {
                 agent.SetDestination(hit.position);
@@ -180,11 +194,7 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
 
         if (searchTimer <= 0f)
         {
-            if (searchTimer <= 0f)
-            {
-                agent.SetDestination(homePosition);
-                EnterPatrol();
-            }
+            EnterPatrol();
         }
     }
 
@@ -195,10 +205,23 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         if (inCombat) return;
 
         hasDetectedPlayer = false;
-
         currentState = EnemyState.Patrol;
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
-        patrol.ResumePatrol();
+
+        if (patrol != null && patrol.patrolEnabled)
+        {
+            if (patrolResumeIndex >= 0)
+                patrol.SetPatrolIndex(patrolResumeIndex);
+
+            patrol.ResumePatrol();
+        }
+        else if (hasHome)
+        {
+            agent.SetDestination(homePosition);
+        }
+
+        SetEyeColor(patrolColor);
     }
 
 
@@ -206,7 +229,14 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
     {
         hasDetectedPlayer = true;
         currentState = EnemyState.Chase;
-        patrol.StopPatrol();
+
+        if (patrol != null)
+        {
+            patrolResumeIndex = patrol.GetCurrentIndex();
+            patrol.StopPatrol();
+        }
+
+        agent.isStopped = false;
         agent.speed = chaseSpeed;
         lastSeenPosition = vision.LastSeenPosition;
         agent.SetDestination(player.position);
@@ -217,6 +247,7 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         hasDetectedPlayer = false;
         currentState = EnemyState.Search;
         searchTimer = searchDuration;
+        agent.isStopped = false;
         agent.speed = patrolSpeed;
     }
 
@@ -240,45 +271,73 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         transform.position = restSpot.position;
         transform.rotation = restSpot.rotation;
 
-        patrol.enabled = false;
+        if (patrol != null)
+            patrol.enabled = false;
     }
 
     public void ExitRest()
     {
-        patrol.enabled = true;
+        if (patrol != null)
+            patrol.enabled = true;
+
         agent.isStopped = false;
         PauseChase(false);
     }
 
+    public void ForceMoveTo(Vector3 target)
+    {
+        currentState = EnemyState.Patrol;
+        isPaused = true;
+
+        if (patrol != null)
+            patrol.StopPatrol();
+
+        agent.isStopped = false;
+        agent.ResetPath();
+        agent.SetDestination(target);
+    }
+
+    public void ResumeFromForcedMove()
+    {
+        isPaused = false;
+    }
+
     public void ResetState()
     {
+        enabled = true;
 
-        // Stop everything
         StopAllCoroutines();
+
+        if (agent == null)
+            agent = GetComponent<NavMeshAgent>();
+
+        if (patrol == null)
+            patrol = GetComponent<EnemyPatrol>();
 
         agent.enabled = false;
 
-        // Teleport enemy back
         transform.position = startPosition;
         transform.rotation = startRotation;
 
         agent.enabled = true;
-
-        agent.isStopped = false;
-
-        hasDetectedPlayer = false; 
-        inCombat = false;
-
         agent.Warp(startPosition);
-        
-        agent.isStopped = true;
-        agent.ResetPath();
+
+        hasDetectedPlayer = false;
+        inCombat = false;
+        isPaused = false;
         currentState = EnemyState.Patrol;
         searchTimer = 0f;
-        isPaused = false;
+        patrolResumeIndex = -1;
 
-        patrol.enabled = true;
-        patrol.ResumePatrol();
+        agent.ResetPath();
+        agent.isStopped = false;
+        agent.speed = patrolSpeed;
+
+        if (patrol != null)
+        {
+            patrol.enabled = true;
+            patrol.ResumePatrol();
+        }
 
         SetEyeColor(patrolColor);
     }
@@ -288,7 +347,5 @@ public class EnemyAI : MonoBehaviour, ILoopResettable
         startPosition = pos;
         startRotation = transform.rotation;
     }
-
-
 
 }

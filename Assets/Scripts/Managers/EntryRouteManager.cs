@@ -17,6 +17,7 @@ public class EntryRouteManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    // Stages of entering
     public bool HasEverEntered() => hasEverEntered;
     public bool HasEverBroken() => hasEverBroken;
 

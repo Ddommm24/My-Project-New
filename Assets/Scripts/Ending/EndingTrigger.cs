@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class EndingTrigger : MonoBehaviour
 {
+    // For tracking when the player is at the point where the cutscene starts from
     bool triggered = false;
 
     void OnTriggerEnter(Collider other)

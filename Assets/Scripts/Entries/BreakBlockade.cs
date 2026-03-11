@@ -7,6 +7,7 @@ public class BreakableBlockade : MonoBehaviour, IInteractable
 
     public bool CanInteract()
     {
+        // Handling loop logic
         if (!EntryRouteManager.Instance.HasEverEntered())
             return false;
 
